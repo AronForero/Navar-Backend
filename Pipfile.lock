@@ -1,12 +1,10 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "73a61b98814bf0616219577e26e0fb167e894ca087c985caf35cc361c2981fc0"
+            "sha256": "35abfc8876eb58e0c9a9bd9ba5078e8d114fee4d89d39e915359a8051f2f543c"
         },
         "pipfile-spec": 6,
-        "requires": {
-            "python_version": "3.7"
-        },
+        "requires": {},
         "sources": [
             {
                 "name": "pypi",
@@ -25,10 +23,10 @@
         },
         "colorama": {
             "hashes": [
-                "sha256:05eed71e2e327246ad6b38c540c4a3117230b19679b875190486ddd2d721422d",
-                "sha256:f8ac84de7840f5b9c4e3347b3c1eaa50f7e49c2b07596221daec5edaabbd7c48"
+                "sha256:7d73d2a99753107a36ac6b455ee49046802e59d9d076ef8e47b61499fa29afff",
+                "sha256:e96da0d330793e2cb9485e9ddfd918d456036c7149416295932478192f4436a1"
             ],
-            "version": "==0.4.1"
+            "version": "==0.4.3"
         },
         "commitizen": {
             "hashes": [

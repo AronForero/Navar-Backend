@@ -1,12 +1,7 @@
 from django.db import models
-from authentication.models.mixins import SoftDeleteMixin, TimestampsMixin
-from authentication.models.user import User
+from general.mixins import SoftDeleteMixin, TimestampsMixin
+from authentication.models import User
 
-
-code = models.CharField(
-        'intern code made of the initial letter of the name+amputation type+...etc',
-        max_length=15,
-    )
 
 class Service(TimestampsMixin, SoftDeleteMixin):
     """ Also Known As Packages"""
@@ -54,7 +49,7 @@ class Request(TimestampsMixin, SoftDeleteMixin):
     created_by = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='request_user',
+        related_name='requester_user',
     )
 
     patient = models.ForeignKey(
@@ -110,7 +105,7 @@ class RequestComment(TimestampsMixin):
     request = models.ForeignKey(
         Request,
         on_delete=models.CASCADE,
-        related_name='request'
+        related_name='request_obj'
     )
 
     created_by = models.ForeignKey(
@@ -130,7 +125,7 @@ class RequestService(TimestampsMixin, SoftDeleteMixin):
     request = models.ForeignKey(
         Request,
         on_delete=models.CASCADE,
-        related_name='request_obj',
+        related_name='initial_request',
     )
 
     service = models.ForeignKey(
@@ -162,8 +157,8 @@ class Case(TimestampsMixin, SoftDeleteMixin):
 
     request = models.ForeignKey(
         'Request that opens the case',
-        on_delete=model.CASCADE,
-        related_name='request_related',
+        on_delete=models.CASCADE,
+        related_name='related_request',
     )
 
     end_date = models.DateTimeField(

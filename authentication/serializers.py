@@ -1,12 +1,10 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
-from authentication.models.user import User, Role, UserRole
+from djoser.serializers import UserCreateSerializer, UserSerializer
+from authentication.models import Role, UserRole, User, AdditionalUserInformation
 
 
-#User = get_user_model()
-
-
-class PublicUserSerializer(serializers.ModelSerializer):
+class PublicUserSerializer(UserCreateSerializer):
 
     def create(self, validated_data):
         return User.objects.create_user(
@@ -21,24 +19,23 @@ class PublicUserSerializer(serializers.ModelSerializer):
         super(self.__class__, self).update(instance, validated_data)
         return instance
 
-    class Meta:
+    class Meta(UserCreateSerializer.Meta):
         model = User
-        # we don't want to return password
-        exclude = [
-            'trashed',
-            'trashed_at',
-        ]
+        fields = ['email', 'id', 'password', 'first_name', 'last_name']
 
 
-class UserSerializer(serializers.ModelSerializer):
+class CustomUserSerializer(UserSerializer):
+
+    class Meta(UserSerializer.Meta):
+        model = User
+        fields = ['id', 'email', 'first_name', 'last_name', 'password']
+
+
+class AdditionalUserInfoSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = User
-        exclude = [
-            'password',
-            'thrashed',
-            'thrashed_at',
-        ]
+        model = AdditionalUserInformation
+        fields = '__all__'
 
 
 class RoleSerializer(serializers.ModelSerializer):

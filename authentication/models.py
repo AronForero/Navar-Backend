@@ -1,6 +1,6 @@
 from django.core.validators import RegexValidator
 from django.db import models
-from authentication.models.mixins import SoftDeleteMixin, TimestampsMixin
+from general.mixins import SoftDeleteMixin, TimestampsMixin
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 
 
@@ -121,7 +121,7 @@ class UserRole(SoftDeleteMixin, TimestampsMixin):
     role = models.ForeignKey(
         Role,
         on_delete=models.CASCADE,
-        related_name='role',
+        related_name='related_role',
     )
 
 

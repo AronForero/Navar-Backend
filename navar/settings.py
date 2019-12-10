@@ -20,7 +20,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'xuvkqnmflh%((irj6$s7$@^g+f@eiq9m1&tl@nkc_0nx@a(7zl'
+SECRET_KEY = ')#o)fl04iz$&%lr0qj%&k!e4vjeo1b9b-i2r(8w+*7)!&+*7g_'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -38,7 +38,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework.authtoken',
     'authentication.apps.AuthenticationConfig',
+    'djoser',
 ]
 
 MIDDLEWARE = [
@@ -82,6 +84,26 @@ DATABASES = {
     }
 }
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+}
+
+AUTH_USER_MODEL = 'authentication.User'
+
+DJOSER = {
+    'LOGIN_FIELD': 'email',
+    'SERIALIZERS': {
+        'user_create': 'authentication.serializers.PublicUserSerializer',
+        'user': 'authentication.serializers.CustomUserSerializer',
+    },
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
@@ -120,12 +142,3 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
-
-REST_FRAMEWORK = {
-
-    'DEFAULT_PERMISSION_CLASSES': (
-       'rest_framework.permissions.AllowAny',
-    ),
-
-}
-

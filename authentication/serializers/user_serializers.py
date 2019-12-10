@@ -1,8 +1,9 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
+from authentication.models.user import User, Role, UserRole
 
 
-User = get_user_model()
+#User = get_user_model()
 
 
 class PublicUserSerializer(serializers.ModelSerializer):
@@ -26,7 +27,6 @@ class PublicUserSerializer(serializers.ModelSerializer):
         exclude = [
             'trashed',
             'trashed_at',
-            'user_type',
         ]
 
 
@@ -39,3 +39,15 @@ class UserSerializer(serializers.ModelSerializer):
             'thrashed',
             'thrashed_at',
         ]
+
+
+class RoleSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Role
+
+
+class UserRoleSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = UserRole

@@ -1,6 +1,6 @@
 from django.core.validators import RegexValidator
 from django.db import models
-from apps.models.mixins import SoftDeleteMixin, TimestampsMixin
+from authentication.models.mixins import SoftDeleteMixin, TimestampsMixin
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 
 
@@ -115,7 +115,7 @@ class UserRole(SoftDeleteMixin, TimestampsMixin):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='user',
+        related_name='related_user',
     )
 
     role = models.ForeignKey(
@@ -138,7 +138,7 @@ class AdditionalUserInformation(TimestampsMixin, SoftDeleteMixin):
     )
 
     AMPUTATION_LEVEL_CHOICES = (
-        ('Level tal', 'bla bla'),
+        ('Level_tal', 'bla bla'),
     )
 
     SOCKET_CHOICES = (
@@ -177,6 +177,7 @@ class AdditionalUserInformation(TimestampsMixin, SoftDeleteMixin):
         'Limb affected',
         choices=LIMB_CHOICES,
         null=True,
+        max_length=10,
     )
 
     profession = models.CharField(
@@ -189,10 +190,12 @@ class AdditionalUserInformation(TimestampsMixin, SoftDeleteMixin):
         'Choices',
         choices=AMPUTATION_LEVEL_CHOICES,
         null=True,
+        max_length=10,
     )
 
     socket_type = models.CharField(
         'Choices',
         choices=SOCKET_CHOICES,
         null=True,
+        max_length=10,
     )

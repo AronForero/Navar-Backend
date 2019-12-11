@@ -1,12 +1,11 @@
-from django.shortcuts import get_object_or_404
+from datetime import datetime
 
+from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, permissions, status
-from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
 
-from authentication.models import User, Role, UserRole, AdditionalUserInformation
-from authentication.serializers import PublicUserSerializer, UserSerializer, RoleSerializer, UserRoleSerializer, \
-    AdditionalUserInfoSerializer
+from authentication.models import User, AdditionalUserInformation
+from authentication.serializers import PublicUserSerializer, AdditionalUserInfoSerializer, PublicUpdateSerializer
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -22,6 +21,7 @@ class UserViewSet(viewsets.ModelViewSet):
         user_serializer.is_valid(raise_exception=True)
 
         user = User.objects.create_user(**user_serializer.validated_data)
+        # user = User.objects.create_superuser(**user_serializer.validated_data)
         user.save()
 
         return Response(self.serializer_class(user).data, status=status.HTTP_201_CREATED)
@@ -33,6 +33,40 @@ class UserViewSet(viewsets.ModelViewSet):
         users = User.objects.filter(trashed=False)
         return Response(self.serializer_class(users, many=True).data, status=status.HTTP_200_OK)
 
+    def update(self, request, *args, **kwargs):
+        current_user = User.objects.get(id=self.request.user.id)
+        serializer = PublicUpdateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        # Validate fields
+        password = serializer.validated_data.get('password')
+        if password is not None:
+            current_user.set_password(password)
+
+        if serializer.validated_data.get('first_name') is not None:
+            current_user.first_name = serializer.validated_data.get('first_name')
+        if serializer.validated_data.get('last_name') is not None:
+            current_user.last_name = serializer.validated_data.get('last_name')
+
+        current_user.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class UserDeleteView(viewsets.generics.DestroyAPIView):
+
+    def delete(self, request, *args, **kwargs):
+        current_user = User.objects.get(id=self.request.user.id)
+        if not current_user.is_superuser:
+            return Response('Only Super User allowed', status=status.HTTP_400_BAD_REQUEST)
+        user = User.objects.get(id=kwargs.get('user_id'))
+        user.trashed = True
+        user.trashed_at = datetime.now()
+        user.save()
+        extra_info = AdditionalUserInformation.objects.get(user=user, trashed=False)
+        extra_info.trashed = True
+        extra_info.trashed_at = datetime.now()
+        extra_info.save()
+        return Response({'detail': 'deleted.'}, status=status.HTTP_200_OK)
+
 
 class AdditionalUserDataViewSet(viewsets.ModelViewSet):
     queryset = AdditionalUserInformation.objects.all()
@@ -40,22 +74,21 @@ class AdditionalUserDataViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAuthenticated,)
 
     def retrieve(self, request, *args, **kwargs):
+        """
+        This function reach an object and returns it
+        """
         user = User.objects.get(id=self.request.user.id)
-        additional_info = AdditionalUserInformation.objects.filter(user=user)
-        s = dict(list(additional_info.values())[0])
-        print(self.serializer_class(s).data)
-        serializer = self.serializer_class(s)
-        serializer.is_valid(raise_exception=True)
-        if len(additional_info) == 0:
-            return Response({'detail': 'No Additional Info'})
-        self.check_object_permissions(self.request, additional_info)
+        user_info = get_object_or_404(AdditionalUserInformation, user=user, trashed=False)
 
-        return Response(self.serializer_class(additional_info, partial=True).data, status=status.HTTP_200_OK)
+        return Response(self.serializer_class(user_info).data, status=status.HTTP_200_OK)
 
     def create(self, request, *args, **kwargs):
+        """
+        This function allow us to create the extra user info object
+        """
+        request.data['user'] = self.request.user.id
         serializer = self.serializer_class(data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
-        user = User.objects.get(id=request.data.get('user'))
         additional_info = AdditionalUserInformation.objects.filter(user=serializer.validated_data.get('user'))
         if len(additional_info) > 0:
             return Response({'detail': 'Additional Information object already exist, please do a PUT request instead.'})
@@ -67,20 +100,17 @@ class AdditionalUserDataViewSet(viewsets.ModelViewSet):
 
     def update(self, request, *args, **kwargs):
         """
-        This function allow to update a specific user in the DB
+        This function allow to update a specific user info in the DB
         """
-        queryset = self.filter_queryset(self.get_queryset())
+        user = User.objects.get(id=self.request.user.id, trashed=False)
+        request.data['user'] = self.request.user.id
+        extra_info = AdditionalUserInformation.objects.filter(user=user, trashed=False)
+        if len(extra_info) > 1:
+            return Response({'detail': 'more than one object found, please contact the administrator of the system'},
+                            status=status.HTTP_409_CONFLICT)
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        AdditionalUserInformation.objects.update(**serializer.validated_data)
+        user_info = AdditionalUserInformation.objects.get(user=user)
 
-        filter_kwargs = {
-            self.lookup_field: self.request.user.id,
-            'trashed': False,
-            'is_active': True,
-        }
-
-        user = get_object_or_404(queryset, **filter_kwargs)
-
-        user_serializer = PublicUserSerializer(user, data=request.data, partial=True)
-        user_serializer.is_valid(raise_exception=True)
-        user_serializer.save()
-
-        return Response(self.serializer_class(user).data, status=status.HTTP_200_OK)
+        return Response(self.serializer_class(user_info).data, status=status.HTTP_200_OK)

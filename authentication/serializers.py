@@ -24,6 +24,12 @@ class PublicUserSerializer(UserCreateSerializer):
         fields = ['email', 'id', 'password', 'first_name', 'last_name']
 
 
+class PublicUpdateSerializer(serializers.Serializer):
+    password = serializers.CharField(min_length=8, allow_null=True)
+    first_name = serializers.CharField(max_length=20, allow_null=True)
+    last_name = serializers.CharField(max_length=30, allow_null=True)
+
+
 class CustomUserSerializer(UserSerializer):
 
     class Meta(UserSerializer.Meta):
@@ -35,7 +41,7 @@ class AdditionalUserInfoSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AdditionalUserInformation
-        fields = '__all__'
+        exclude = ('trashed', 'trashed_at', 'created_at', 'updated_at')
 
 
 class RoleSerializer(serializers.ModelSerializer):

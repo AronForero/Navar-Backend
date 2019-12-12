@@ -21,25 +21,30 @@ class Service(TimestampsMixin, SoftDeleteMixin):
     )
 
 
-class RequestState(models.Model):
-    """States that the Request can take"""
-    tag = models.CharField(
-        'easy identifier of the state',
-        max_length=10,
-    )
+# class RequestState(models.Model):
+#     """States that the Request can take"""
+#     tag = models.CharField(
+#         'easy identifier of the state',
+#         max_length=10,
+#     )
 
-    name = models.CharField(
-        'State Name',
-        max_length=20,
-    )
+#     name = models.CharField(
+#         'State Name',
+#         max_length=20,
+#     )
 
-    description = models.CharField(
-        'description of the state',
-        max_length=300,
-    )
+#     description = models.CharField(
+#         'description of the state',
+#         max_length=300,
+#     )
 
 
 class Request(TimestampsMixin, SoftDeleteMixin):
+
+    STATE_CHOICES = (
+        ('ESTADO_1', 'Estado 1'),
+        ('ESTADO_2', 'Estado 2'),
+    )
 
     tag = models.CharField(
         'name of the case that the creator can set',
@@ -58,10 +63,10 @@ class Request(TimestampsMixin, SoftDeleteMixin):
         related_name='related_patient',
     )
 
-    state = models.ForeignKey(
-        RequestState,
-        on_delete=models.CASCADE,
-        related_name='request_state',
+    state = models.CharField(
+        'State of the request',
+        choices=STATE_CHOICES,
+        max_length=20,
     )
 
     estimated_delivery = models.DateTimeField(
@@ -81,21 +86,25 @@ class Request(TimestampsMixin, SoftDeleteMixin):
     authorized_by = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='authorizer',
+        related_name='authorizer_user',
+        null=True,
     )
 
     authorized_at = models.DateTimeField(
-        'When the request is authorized'
+        'When the request is authorized',
+        null=True,
     )
 
     inspected_by = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='inspector',
+        related_name='inspector_user',
+        null=True
     )
 
     inspected_at = models.DateTimeField(
-        'When the request is accepted'
+        'When the request is accepted',
+        null=True,
     )
 
 
@@ -105,7 +114,7 @@ class RequestComment(TimestampsMixin):
     request = models.ForeignKey(
         Request,
         on_delete=models.CASCADE,
-        related_name='request_obj'
+        related_name='request_belongs'
     )
 
     created_by = models.ForeignKey(
@@ -125,7 +134,7 @@ class RequestService(TimestampsMixin, SoftDeleteMixin):
     request = models.ForeignKey(
         Request,
         on_delete=models.CASCADE,
-        related_name='initial_request',
+        related_name='request_obj',
     )
 
     service = models.ForeignKey(
@@ -143,6 +152,53 @@ class RequestService(TimestampsMixin, SoftDeleteMixin):
     )
 
 
+class Requirement(TimestampsMixin, SoftDeleteMixin):
+    """
+    This model will handle the data of the different types of requirements,
+    that could be needed in a case
+    """
+    REQ_TYPE_CHOICES = (
+        ('USE', 'USO'),
+        ('FUNCTIONAL', 'FUNCIONAL'),
+        ('OBJECT_RESISTANCE', 'RESISTENCIA_OBJETO'),
+        ('TECNICAL_PRODUCTIVE', 'TECNICO_PRODUCTIVO'),
+        ('NORMATIVE', 'NORMATIVO'),
+    )
+
+    type = models.CharField(
+        'Type of requirement',
+        choices=REQ_TYPE_CHOICES,
+        max_length=20,
+    )
+
+    name = models.CharField(
+        'Name of the requirement',
+        max_length=50,
+    )
+
+    parameter = models.CharField(
+        'Parameter of the requirement',
+        max_length=50,
+    )
+
+    req_range = models.CharField(
+        'Range ???',
+        max_length=50,
+    )
+
+    measure = models.CharField(
+        'Measure of the requirement',
+        max_length=50,
+    )
+
+    importance = models.CharField(
+        'Importance of the requirement',
+        max_length=50,
+    )
+
+    approved = models.BooleanField(null=True)
+
+
 class Case(TimestampsMixin, SoftDeleteMixin):
     """ Case the principal Object in the Db """
     code = models.CharField(
@@ -156,7 +212,7 @@ class Case(TimestampsMixin, SoftDeleteMixin):
     )
 
     request = models.ForeignKey(
-        'Request that opens the case',
+        Request,
         on_delete=models.CASCADE,
         related_name='related_request',
     )
@@ -170,3 +226,18 @@ class Case(TimestampsMixin, SoftDeleteMixin):
         max_length=300,
     )
 
+
+class CaseRequirement(TimestampsMixin, SoftDeleteMixin):
+    """ Table that will handle the relation between the table of case and the table of requirement"""
+
+    requirement = models.ForeignKey(
+        Requirement,
+        on_delete=models.CASCADE,
+        related_name = 'requirement',
+    )
+
+    case = models.ForeignKey(
+        Case,
+        on_delete=models.CASCADE,
+        related_name='case_owner',
+    )

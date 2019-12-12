@@ -120,13 +120,13 @@ class AdditionalUserDataViewSet(viewsets.ModelViewSet):
 class RolesViewSet(viewsets.ModelViewSet):
     queryset = Role.objects.all()
     serializer_class = RoleSerializer
-    permissions = (permissions.IsAuthenticated,)
+    permission_classes = (permissions.IsAuthenticated,)
 
 
 class UserRoleViewSet(viewsets.ModelViewSet):
     queryset = UserRole.objects.filter(trashed=False)
     serializer_class = UserRoleSerializer
-    permissions = (permissions.IsAuthenticated,)
+    permission_classes = (permissions.IsAuthenticated,)
 
     def create(self, request, *args, **kwargs):
         current_user = User.objects.get(id=self.request.user.id)

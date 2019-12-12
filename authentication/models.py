@@ -93,11 +93,12 @@ class Role(models.Model):
     tag = models.CharField(
         'tag to recognize the role easily',
         max_length=10,
+        unique=True,
     )
 
     name = models.CharField(
         'Role Name',
-        max_length=15,
+        max_length=30,
     )
 
     description = models.CharField(

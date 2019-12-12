@@ -48,9 +48,11 @@ class RoleSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Role
+        fields = '__all__'
 
 
 class UserRoleSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserRole
+        fields = ['id', 'user', 'role']

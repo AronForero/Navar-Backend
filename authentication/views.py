@@ -12,7 +12,7 @@ from authentication.serializers import PublicUserSerializer, AdditionalUserInfoS
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = PublicUserSerializer
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (permissions.AllowAny,)
 
     def create(self, request, *args, **kwargs):
         current_user = User.objects.get(id=self.request.user.id)

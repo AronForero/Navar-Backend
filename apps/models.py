@@ -202,8 +202,9 @@ class Requirement(TimestampsMixin, SoftDeleteMixin):
 class Case(TimestampsMixin, SoftDeleteMixin):
     """ Case the principal Object in the Db """
     code = models.CharField(
-        'easy tag to recognize the obj',
-        max_length=10,
+        'Code of the Case (Automatically set)',
+        max_length=15,
+        unique=True,
     )
 
     tag = models.CharField(

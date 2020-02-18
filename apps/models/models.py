@@ -216,7 +216,7 @@ class ActivityRequestPrevious(TimestampsMixin, SoftDeleteMixin):
     )
 
 
-class RequestFileOutput(TimestampsMixin):
+class RequestFileOutput(TimestampsMixin, SoftDeleteMixin):
     """ output file of a specific activity in the case/request """
 
     name = models.CharField(
@@ -252,7 +252,7 @@ class RequestFileOutput(TimestampsMixin):
     )
 
 
-class RequestFileInput(TimestampsMixin):
+class RequestFileInput(TimestampsMixin, SoftDeleteMixin):
     """ file which a user can see or download starting an activity,
      this is the resulted file of a previous activity"""
 

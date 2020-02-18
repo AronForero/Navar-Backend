@@ -79,7 +79,7 @@ class Option(TimestampsMixin, SoftDeleteMixin):
     )
 
 
-class UserAnswer(TimestampsMixin,. SoftDeleteMixin):
+class UserAnswer(TimestampsMixin, SoftDeleteMixin):
     """ Answer provided by a registered user """
 
     answered_question = models.ForeignKey(

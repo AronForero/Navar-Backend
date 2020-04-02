@@ -88,13 +88,13 @@ class UserAnswer(TimestampsMixin, SoftDeleteMixin):
         related_name='answered_question'
     )
 
-    answered_by = model.ForeignKey(
+    answered_by = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name='answer_creator',
     )
 
-    value = moedls.CharField(
+    value = models.CharField(
         'answer gave by the user',
         max_length=100,
     )
